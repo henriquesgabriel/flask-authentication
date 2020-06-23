@@ -1,16 +1,22 @@
 import io
-from flask import Blueprint, render_template, request, url_for, redirect, flash, session, abort
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required
-import pyqrcode
-from .data import User
 from . import db
+from .data import User
+import pyqrcode
+from flask_login import login_user, logout_user, login_required
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask import Blueprint, render_template, request, url_for, redirect,
+
+
+flash, session, abort
 
 auth = Blueprint('auth', __name__)
+
 
 @auth.route('/login')
 def login():
     return render_template('login.html')
+
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -37,9 +43,11 @@ def login_post():
 
     return redirect(url_for('main.dashboard'))
 
+
 @auth.route('/signup')
 def signup():
     return render_template('signup.html')
+
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
@@ -57,17 +65,22 @@ def signup_post():
         flash('This email address already exists!')
         return redirect(url_for('auth.signup'))
 
-    new_user = User(email=email, first_name=first_name, last_name=last_name, password=generate_password_hash(password, method='sha256'))
+    new_user = User(email=email, first_name=first_name, last_name=last_name,
+                    password=generate_password_hash(password, method='sha256'))
 
     db.session.add(new_user)
+
     db.session.commit()
 
     session['username'] = request.form.get('email')
     return redirect(url_for('auth.two_factor_setup'))
 
+
 """
 2nd Factor Authentication Setup
 """
+
+
 @auth.route('/two-factor-authentication')
 def two_factor_setup():
     if 'username' not in session:
@@ -84,12 +97,14 @@ def two_factor_setup():
         'Pragma': 'no-cache',
         'Expires': '0'}
 
+
 """
 QR Code Generator
 """
+
+
 @auth.route('/qrcode')
 def qrcode():
-
     """
     Verify session
     """
@@ -120,11 +135,15 @@ def qrcode():
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'}
+        'Expires': '0'
+    }
+
 
 """
 Ensure user is authenticated
 """
+
+
 @auth.route('/logout')
 @login_required
 def logout():
